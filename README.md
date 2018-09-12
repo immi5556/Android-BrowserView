@@ -13,7 +13,7 @@ Also provides a JavaScript bridge with Name "Android" - to communicate with Nati
 
 ## Installation
 
-gradle: implementation project(path: ':browserview')
+gradle: compile 'co.immanuel:browserview:0.2'
 
 
 ## API Reference
