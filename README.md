@@ -13,7 +13,7 @@ Also provides a JavaScript bridge with Name "Android" - to communicate with Nati
 
 ## Installation
 
-gradle: implementation project(':camerathumb')
+gradle: implementation project(path: ':browserview')
 
 
 ## API Reference
