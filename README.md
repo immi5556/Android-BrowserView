@@ -44,6 +44,18 @@ gradle: compile 'co.immanuel:browserview:0.2'
 	
 7. DeviceManufacturer
 	Android.getDeviceManufacturer();	
+	
+8. Get GPS Location	
+	<script>
+		Android.enableLocation("getloc", "freqloc"); // First Param, Callback Function - Send the Location Status, Second Param - Frequency Callback Function for Every 1 minute or Location changes to 10M
+		var getloc = function (msg) {
+		    alert(msg);
+		}
+
+		var freqloc = function (msg) {
+		    alert(msg);
+		}
+	</script>
 ```	
 	
 ## Contributors
