@@ -18,6 +18,7 @@ gradle: compile 'co.immanuel:browserview:0.2'
 
 ## API Reference
 
+```
 1. Push Notification:
 <script>
 	var fnpush = function (msg) {
@@ -43,6 +44,7 @@ gradle: compile 'co.immanuel:browserview:0.2'
 	
 7. DeviceManufacturer
 	Android.getDeviceManufacturer();	
+```	
 	
 ## Contributors
 
