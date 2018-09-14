@@ -1,12 +1,21 @@
 package immanuel.co.browserview;
 
+import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageInfo;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.os.Build;
+import android.provider.Settings;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
@@ -14,15 +23,23 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import java.io.ByteArrayOutputStream;
+
+import immanuel.co.camerathumb.CameraIntent;
+import immanuel.co.camerathumb.GlobalConfig;
+
 public class BrowserActivity extends AppCompatActivity {
 
     public WebView webView;
+    String deviceId = "";
     int appVersion = 0;
     int osVersion;
     String deviceModel;
     String deviceManufacturer;
     String device;
     String url;
+    String deviceToken;
+    static GpsTracker gpsloc;
 
     public  BrowserActivity(){
         this.url = "https://vload.in/index.html";
@@ -49,8 +66,9 @@ public class BrowserActivity extends AppCompatActivity {
         }catch(Exception e){
             e.printStackTrace();
         }
-        String deviceId = "";
+
         device = isTablet(BrowserActivity.this);
+        deviceToken = SharedPref.getDeviceToken();
         url += "?DeviceToken=" + deviceId + "&DeviceType=android" +
                 "&OsVersion=" +osVersion+  "&AppVersion=" +appVersion+ "&DeviceModel="+deviceModel+
                 "&DeviceManufacturer=" +deviceManufacturer+"&Device="+device;
@@ -121,6 +139,74 @@ public class BrowserActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        LocalBroadcastManager.getInstance(this).registerReceiver((mMessageReceiver),
+                new IntentFilter("MyData")
+        );
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+    }
+
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String ndata = (intent.getExtras().getString("notification"));
+            String ntitl = (intent.getExtras().getString("title"));
+            webView.loadUrl("javascript:" + FcmPushNotif.jscallback + "(' { notif: \"" + ndata + "\", title: \"" + ntitl  + "\"}')");
+        }
+    };
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK && requestCode == 110) {
+            String requiredValue = data.getStringExtra("Key");
+            Log.d("wewe1", requiredValue);
+            //LinearLayout ll = (LinearLayout)findViewById(R.id.errt);
+            for (Bitmap bm: GlobalConfig.imgs) {
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bm.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                byte[] byteArray = stream.toByteArray();
+                String imageData = Base64.encodeToString(byteArray, Base64.NO_WRAP);
+                webView.loadUrl("javascript:" + SharedPref.cameracallback +"('" + imageData + "')");
+            }
+        }
+    }
+
+    public void StartPhotoIntent() {
+        Intent i = new Intent(this, CameraIntent.class);
+        startActivityForResult (i, 110);
+    };
+
+    public void UpdateLocation(String locJson, final boolean freq){
+//        webView.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                webView.loadUrl("javascript:" + GpsTracker.locationCallback + "(" + locJson + ")");
+//            }
+//        });
+        webView.post(new Runnable() {
+            String str;
+            @Override
+            public void run() {
+                if (freq){
+                    webView.loadUrl("javascript:" + GpsTracker.freqcallback + "(" + str + ")");
+                } else {
+                    webView.loadUrl("javascript:" + GpsTracker.locationCallback + "(" + str + ")");
+                }
+            }
+            public Runnable init(String pstr) {
+                this.str=pstr;
+                return(this);
+            }
+        }.init(locJson));
+    }
+
     public class AndroidBridge {
 
         private BrowserActivity activity;
@@ -130,8 +216,67 @@ public class BrowserActivity extends AppCompatActivity {
         }
 
         @JavascriptInterface
-        public void userLogStatus(boolean status){
+        public String startCamera(String cameracallback){
+            SharedPref.cameracallback = cameracallback;
+            StartPhotoIntent();
+            return deviceToken;
+        }
 
+        @JavascriptInterface
+        public String enableLocation(String callbackfunction, String freqcallback){
+            GpsTracker.locationCallback = callbackfunction;
+            GpsTracker.freqcallback = freqcallback;
+            if (gpsloc == null)
+                gpsloc = new GpsTracker(activity.getApplicationContext(), activity);
+            String hh = gpsloc.getLocation();
+            activity.UpdateLocation(hh, false);
+            return deviceToken;
+        }
+
+        @JavascriptInterface
+        public String enablePushNotification(String callbackfunction){
+            FcmPushNotif.jscallback = callbackfunction;
+            return deviceToken;
+        }
+
+        @JavascriptInterface
+        public String getDeviceToken(){
+            return deviceToken;
+        }
+
+        @JavascriptInterface
+        public String getDeviceId(){
+            return deviceId;
+        }
+
+        @JavascriptInterface
+        public String getDeviceType(){
+            return "android";
+        }
+
+        @JavascriptInterface
+        public int getOsVersion(){
+            return osVersion;
+        }
+
+        @JavascriptInterface
+        public int getAppVersion(){
+            return appVersion;
+        }
+
+        @JavascriptInterface
+        public String getDeviceModel(){
+            return deviceModel;
+        }
+
+        @JavascriptInterface
+        public String getDeviceManufacturer(){
+            return deviceManufacturer;
+        }
+
+        @JavascriptInterface
+        public String getDevice(){
+            return device;
         }
     }
 }

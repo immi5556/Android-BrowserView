@@ -1,5 +1,29 @@
 apply plugin: 'com.android.library'
 
+ext {
+    bintrayRepo = 'immanuel.co'
+    bintrayName = 'browserview'
+
+    publishedGroupId = 'co.immanuel'
+    libraryName = 'browserview'
+    artifact = 'browserview'
+
+    libraryDescription = 'Android Webview Wrapper'
+
+    siteUrl = 'https://github.com/immi5556/Android-BrowserView'
+    gitUrl = 'https://github.com/immi5556/Android-BrowserView.git'
+
+    libraryVersion = '0.3'
+
+    developerId = 'immanuel'
+    developerName = 'Immanuel'
+    developerEmail = 'raj@immanuel.co'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
+
 android {
     compileSdkVersion 26
 
@@ -32,4 +56,12 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    implementation 'com.google.firebase:firebase-core:16.0.1'
+    implementation 'com.google.firebase:firebase-messaging:17.3.0'
+    implementation 'co.immanuel:camerathumb:0.9'
 }
+
+apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
+apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
+
+apply plugin: 'com.google.gms.google-services'
