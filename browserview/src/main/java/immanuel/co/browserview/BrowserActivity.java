@@ -279,4 +279,9 @@ public class BrowserActivity extends AppCompatActivity {
             return device;
         }
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+    }
 }

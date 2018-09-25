@@ -8,6 +8,6 @@ import immanuel.co.browserview.BrowserActivity;
 public class MainActivity extends BrowserActivity {
 
     public MainActivity(){
-        super("https://whatsup.immanuel.co/Home/Mobile");
+        super("https://whatsup.immanuel.co/Home/Landing");
     }
 }
