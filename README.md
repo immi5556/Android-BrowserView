@@ -3,6 +3,8 @@
 This is a reusable android webview library which takes care of network settings, internet connection etc.
 Also provides a JavaScript bridge with Name "Android" - to communicate with Native API
 
+[![Build Status](https://travis-ci.org/immi5556/Android-BrowserView.svg?branch=master)](https://travis-ci.org/immi5556/Android-BrowserView)
+
 ## Code Example
 
 		public class MainActivity extends BrowserActivity {
